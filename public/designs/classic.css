@@ -635,21 +635,21 @@ input[type=submit], input[type=button] {
 #rm_button_back h2 {
     color: rgb(188, 193, 200, 0.5);
 }
-#rm_button_import {
+#rm_button_import, #rm_button_folder {
     cursor: pointer;
     display: inline-block;
     margin-left: 5px;/* 274px; */
     margin-top: 8px;/* 10px; */
     
 }
-#rm_button_import h2 {
+#rm_button_import h2, #rm_button_folder h2 {
     margin-top: auto;
     margin-bottom: auto;
     font-size: 17px;
     color: rgb(188, 193, 200, 0.5);
 }
 
-#rm_button_import h2:hover {
+#rm_button_import h2:hover, #rm_button_folder h2:hover {
     color: #bcc1c8;
 }
 
@@ -685,7 +685,7 @@ input[type=submit], input[type=button] {
     display: block;
     /* visibility: hidden; */
 }
-.character_select {
+.character_select, .folder_select {
     padding: 0px;
     border-radius: 10px;
     cursor:pointer;
@@ -2697,4 +2697,83 @@ label.checkbox :checked + span:after {
 #hordeQueue:before {
     text-align: right;
     content: "Queue position: "
+}
+.folder_select.folder > .avatar {
+    background-size: cover;
+}
+.folder_select.folder.opened > .avatar {
+    background-image: url("../img/folder_active.png");
+}
+.folder_select.folder:not(.opened) > .avatar {
+    background-image: url("../img/folder.png");
+}
+.folder_select.folder.empty.opened > .avatar {
+    background-image: url("../img/folder_active_empty.png");
+}
+.folder_select.folder.empty:not(.opened) > .avatar {
+    background-image: url("../img/folder_empty.png");
+}
+.character_select.hidden, .folder_select.hidden {
+    display: none;
+}
+.folder_select.hidden {
+    display: none;
+}
+.folder_select.root > div:not(.children) {
+    display: none !important;
+}
+.folder_select.root {
+    display: block !important;
+}
+.character_select, .folder_select {
+    position: relative;
+}
+
+.character_select .delete, .folder_select .delete {
+    position: absolute;
+    top: 1ex;
+    right: 1em;
+    width: 1.5em;
+    height: 1.5em;
+    background-image: url("../img/del_mes.png");
+    background-size: cover;
+    cursor: pointer;
+    opacity: 0.5;
+}
+.folder_select .rename {
+    position: absolute;
+    top: 1ex;
+    right: 3em;
+    width: 1.5em;
+    height: 1.5em;
+    background-image: url("../img/quill.png");
+    background-size: cover;
+    cursor: pointer;
+    opacity: 0.5;
+}
+.character_select .delete:hover, .folder_select .delete:hover, .folder_select .rename:hover {
+    opacity: 1;
+}
+.folder_select:after {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    height: 6.45em;
+    background: none;
+    border-radius: 10px;
+    content: " ";
+    z-index: -1;
+}
+.folder_select:after:hover:after{
+    background-color: #ffffff11;
+}
+.folder_select.root:hover:after {
+    background-color: transparent;
+}
+.folder_select:not(.root):not(.opened) > .children, .folder_select.hiddenParent > :not(.children) {
+    display: none;
+}
+.folder_select .children {
+    width: 25.55em;
 }

@@ -2,6 +2,8 @@ import {encode, decode} from "../scripts/gpt-2-3-tokenizer/mod.js";
 import {Notes} from "./class/Notes.mjs";
 import {WPP} from "./class/WPP.mjs";
 import {WPPEditor} from "./class/WPPEditor.mjs";
+import {UICabinetRoot} from "./class/UICabinetRoot.mjs";
+import {UICabinetCharacter} from "./class/UICabinetCharacter.mjs";
 
 $(document).ready(function(){
     /*
@@ -158,6 +160,7 @@ $(document).ready(function(){
     var style_anchor = true;
     var character_anchor = true;
 
+    var winChar;
     var winNotes;
     var editorDescriptionWPP;
 
@@ -535,19 +538,41 @@ $(document).ready(function(){
     }
 
     function printCharaters(){
-        //console.log(1);
-        $("#rm_print_charaters_block").empty();
-        characters.forEach(function(item, i, arr) {
-            var this_avatar = default_avatar;
-            if(item.avatar != 'none'){
-                this_avatar = "characters/"+item.avatar+"?v="+Date.now();
+        if(winChar) {
+            winChar.refresh(characters);
+        } else {
+            let pseudoChars = [];
+            characters.forEach((ch, i) => {
+                pseudoChars[i] = {
+                    chid: ch.chid,
+                    avatar: ch.avatar,
+                    name: ch.name,
+                }
+            });
 
-            }
-            $("#rm_print_charaters_block").prepend('<div class=character_select chid='+i+'><div class=avatar><img src="'+this_avatar+'"></div><div class=ch_name_menu>'+item.name+'</div></div>');
-            //console.log(item.name);
-        });
-
-
+            winChar = new UICabinetRoot({
+                characters: pseudoChars,
+                container: document.getElementById("rm_print_charaters_block")
+            });
+            winChar.on(UICabinetCharacter.CHARACTER_SELECT, selectCharacter.bind(this));
+            winChar.on(UICabinetCharacter.CHARACTER_DELETED, function(event) {
+                jQuery.ajax({
+                    method: 'POST',
+                    url: '/deletecharacter',
+                    beforeSend: () => {},
+                    data: { avatar_url: event.avatar },
+                    cache: false,
+                    timeout: requestTimeout,
+                    success: function(html){
+                        location.reload();
+                    },
+                    error: function (jqXHR, exception) {
+                        console.error(exception);
+                        console.error(jqXHR);
+                    }
+                });
+            });
+        }
     }
     async function getCharacters() {
 
@@ -1764,6 +1789,9 @@ $(document).ready(function(){
         selected_button = 'create';
         select_rm_create();
     });
+    $( "#rm_button_folder" ).click(function() {
+        folder_create();
+    });
     $( "#rm_button_selected_ch" ).click(function() {
         selected_button = 'character_edit';
         select_selected_character(this_chid);
@@ -1877,6 +1905,21 @@ $(document).ready(function(){
         
     }
 
+    function folder_create() {
+        if(!winChar) {
+            return;
+        }
+        let quickName = winChar.getFolderName("new folder");
+        let name = prompt("Enter new folder name", quickName);
+        if(!name) {
+            return;
+        }
+        let out = winChar.addFolder(name);
+        if(out) {
+            alert(out);
+        }
+    }
+
     function getTokenCount(text = "") {
         return encode(JSON.stringify(text)).length;
     }
@@ -1934,38 +1977,34 @@ $(document).ready(function(){
 
         $("#form_create").attr("actiontype", "editcharacter");
     }
-    $(document).on('click', '#rm_print_charaters_block .character_select', function(){
-        if(this_chid !== $(this).attr("chid")){
-            if(!is_send_press){
-                
-                $('#shell').css('display', 'grid');
-                $('#chara_cloud').css('display', 'none');
-                this_edit_mes_id = undefined;
-                selected_button = 'character_edit';
-                this_chid = $(this).attr("chid");
-    
-                $('#chat_header_char_name').text(characters[this_chid]['name']);
-                $('#chat_header_char_info').text('designed by booruUser');
-                $('#chat_header_back_button').css('display', 'block');
-                clearChat();
-                chat.length = 0;
-                getChat();
-
-            }
+    function selectCharacter(event){
+        let chid = parseInt(event.chid);
+        if(this_chid !== chid){
+            $('#shell').css('display', 'grid');
+            $('#chara_cloud').css('display', 'none');
+            this_edit_mes_id = undefined;
+            selected_button = 'character_edit';
+            this_chid = chid;
+            $('#chat_header_char_name').text(characters[this_chid]['name']);
+            $('#chat_header_char_info').text('designed by booruUser');
+            $('#chat_header_back_button').css('display', 'block');
+            clearChat();
+            chat.length = 0;
+            getChat();
         }else{
             $('#shell').css('display', 'grid');
             $('#chara_cloud').css('display', 'none');
             selected_button = 'character_edit';
             select_selected_character(this_chid);
         }
-        $('#bg_chara_cloud').transition({  
+        $('#bg_chara_cloud').transition({
             opacity: 0.0,
             duration: 1200,
             easing: "",
             complete: function() {  }
         });
 
-    });
+    }
     var scroll_holder = 0;
     var is_use_scroll_holder = false;
     $(document).on('input', '.edit_textarea', function(){ 

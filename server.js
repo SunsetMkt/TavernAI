@@ -536,140 +536,18 @@ app.post("/deletecharacter", urlencodedParser, function(request, response){
             response.send(err);
             return console.log(err);
         }else{
-            //response.redirect("/");
             let dir_name = request.body.avatar_url;
             rimraf(chatsPath+dir_name.replace(`.${characterFormat}`,''), (err) => { 
                 if(err) {
                     response.send(err);
                     return console.log(err);
                 }else{
-                    //response.redirect("/");
-
                     response.send('ok');
                 }
             });
         }
     });
 });
-/*
-async function charaWrite(source_img, data, target_img, format = 'webp', response = undefined, mes = 'ok'){
-    try {
-        // Load the image in any format
-        sharp.cache(false);
-        target_img = sanitize_filename(target_img);
-        switch(format){
-            case 'webp':
-                return new Promise((resolve, reject) => {
-                    var image = sharp(source_img);
-                    let webp_parameters = {'quality':80, lossless: true, near_lossless:false, smartSubsample: true, effort: 6};
-                    if(source_img.indexOf('.png') !== -1){
-                        webp_parameters = {};
-                    }
-                    image.webp(webp_parameters).withMetadata({
-                        exif: {
-                            IFD0: {
-                                UserComment: data
-                            }
-                        }
-                    }).toBuffer((err, buffer) => {
-                        if (err) { 
-                            console.log(err);
-                            reject(err);
-                        } else {
-                            fs.writeFile(charactersPath+target_img+'.webp', buffer, (err) => {
-                                if (err) {
-                                    console.log(err);
-                                    reject(err);
-                                } else {
-                                    if (response !== undefined) response.send(mes);
-                                    resolve({});
-                                }
-                            });
-                        }
-                    });
-                });
-
-                
-            case 'png':
-                
-                var image = await sharp(source_img).resize(400, 600).toFormat('png').toBuffer();// old 170 234
-                // Convert the image to PNG format
-                //const pngImage = image.toFormat('png');
-
-                // Resize the image to 100x100
-                //const resizedImage = pngImage.resize(100, 100);
-
-                // Get the chunks
-                var chunks = extract(image);
-                 var tEXtChunks = chunks.filter(chunk => chunk.create_date === 'tEXt');
-
-                // Remove all existing tEXt chunks
-                for (var tEXtChunk of tEXtChunks) {
-                    chunks.splice(chunks.indexOf(tEXtChunk), 1);
-                }
-                // Add new chunks before the IEND chunk
-                var base64EncodedData = Buffer.from(data, 'utf8').toString('base64');
-                chunks.splice(-1, 0, PNGtext.encode('chara', base64EncodedData));
-                //chunks.splice(-1, 0, text.encode('lorem', 'ipsum'));
-
-                fs.writeFileSync(charactersPath+target_img+'.png', new Buffer.from(encode(chunks)));
-                if(response !== undefined) response.send(mes);
-                break;
-            default:
-                break;
-                
-        }   
-
-    } catch (err) {
-        console.log(err);
-        if(response !== undefined) response.send(err);
-    }
-}
-async function processImage(imagePath) {
-  for (let i = 0; i < 50; i++) {
-    const processedImagePath = imagePath;
-    try {
-      const imageBuffer = fs.readFileSync(imagePath);
-      let qwer = crypto.randomBytes(400).toString('hex');
-      console.log(qwer);
-      const processedImage = await sharp(imageBuffer).withMetadata({
-                        exif: {
-                            IFD0: {
-                                UserComment: qwer
-                            }
-                        }
-                    }).toBuffer();
-      fs.writeFileSync(processedImagePath, processedImage);
-      console.log(`Iteration ${i}: Success`);
-    } catch (err) {
-      console.log(`Iteration ${i}: Error: ${err}`);
-    }
-  }
-}
-
-const imagePath = 'image.webp';
-processImage(imagePath);
-      */
-     /*
-    async function processImage(imagePath, target_img, data, resolve, reject) {
-    const processedImagePath = imagePath;
-    try {
-      const imageBuffer = fs.readFileSync(imagePath);
-      const processedImage = await sharp(imageBuffer).withMetadata({
-                        exif: {
-                            IFD0: {
-                                UserComment: data
-                            }
-                        }
-                    }).toBuffer();
-      fs.writeFileSync(charactersPath+target_img+'.webp', processedImage);//processedImagePath, processedImage);
-      resolve({});
-    } catch (err) {
-      console.log(err);
-            reject(err);
-    }
-}
-*/
 async function charaWrite(source_img, data, target_img, format = 'webp', response = undefined, mes = 'ok'){
     try {
         // Load the image in any format
@@ -986,6 +864,24 @@ app.post('/getsettings', jsonParser, (request, response) => { //Wintermute's cod
         koboldai_setting_names,
         novelai_settings,
         novelai_setting_names
+    });
+});
+
+
+app.post("/savefolders", jsonParser, function(request, response){
+    fs.writeFile('public/characters/folders.json', JSON.stringify(request.body, null, 2), 'utf8', function(err) {
+        if(err) {
+            response.send(err);
+            return console.log(err);
+        }else{
+            response.send({result: "ok"});
+        }
+    });
+});
+app.post('/loadfolders', jsonParser, (request, response) => {
+    fs.readFile('public/characters/folders.json', 'utf8',  (err, data) => {
+        if (err) return response.sendStatus(500);
+        return response.send(data);
     });
 });
 
