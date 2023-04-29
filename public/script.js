@@ -538,18 +538,17 @@ $(document).ready(function(){
     }
 
     function printCharaters(){
+        let pseudoChars = [];
+        characters.forEach((ch, i) => {
+            pseudoChars[i] = {
+                chid: ch.chid,
+                avatar: ch.avatar,
+                name: ch.name,
+            }
+        });
         if(winChar) {
-            winChar.refresh(characters);
+            winChar.refresh(pseudoChars);
         } else {
-            let pseudoChars = [];
-            characters.forEach((ch, i) => {
-                pseudoChars[i] = {
-                    chid: ch.chid,
-                    avatar: ch.avatar,
-                    name: ch.name,
-                }
-            });
-
             winChar = new UICabinetRoot({
                 characters: pseudoChars,
                 container: document.getElementById("rm_print_charaters_block")
@@ -582,10 +581,7 @@ $(document).ready(function(){
                 "Content-Type": "application/json",
                 "X-CSRF-Token": token
                 },
-            body: JSON.stringify({
-                        "": ""
-                    })
-
+            body: JSON.stringify({ "": "" })
         });
         if (response.ok === true) {
             const getData = await response.json();

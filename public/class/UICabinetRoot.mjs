@@ -26,12 +26,12 @@ export class UICabinetRoot extends EventEmitter {
         this.load();
     }
 
-    refresh(characters) {
+    refresh(chars) {
         if(!this.container) {
             return;
         }
-        if(characters) {
-            this.characters = characters;
+        if(chars) {
+            this.characters = chars;
         }
         let i = 0;
         for(let key in this.characters) {
