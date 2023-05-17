@@ -1128,7 +1128,6 @@ input[type=submit], input[type=button] {
 }
 .world_info .comment-label {
     display: inline;
-    margin-right: 1ex;
     min-width: 4.5em;
 }
 .world_info_details .comment {
@@ -2415,8 +2414,16 @@ label.wpp_label {
     border-radius: 0.5ex;
     margin-bottom: 0.5ex;
 }
+.world_info button.inline {
+    padding: 0.5ex;
+    height: 2em;
+    margin-left: 0.5ex;
+}
 .world_info .row > button {
     min-width: 2em;
+}
+.world_info button:first-child {
+    margin-left: 0;
 }
 .world_info .row > .tags {
     flex-grow: 2;
